@@ -7,28 +7,30 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install XcodeGen
-        run: brew install xcodegen
+      - name: Setup build tools
+        run: |
+          brew install xcodegen
 
-      - name: Generate Xcode project
-        run: cd ios && xcodegen generate
-
-      - name: Build
-        run: cd ios && xcodebuild -project WorkbenchApp.xcodeproj -scheme WorkbenchApp -configuration Release -sdk iphoneos -archivePath build/WorkbenchApp.xcarchive archive CODE_SIGNING_ALLOWED=NO
+      - name: Build project
+        run: |
+          cd ios
+          xcodegen generate
+          xcodebuild -scheme WorkbenchApp -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
 
       - name: Package IPA
         run: |
-          cd ios/build
+          cd ios/build/Build/Products/Release-iphoneos
           mkdir Payload
-          cp -r WorkbenchApp.xcarchive/Products/Applications/WorkbenchApp.app Payload/
-          zip -r 财务工作台.ipa Payload
+          cp -r WorkbenchApp.app Payload/
+          zip -r ../../../workbench.ipa Payload
+          cd ../../..
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: 财务工作台-iOS
-          path: ios/build/财务工作台.ipa
+          name: workbench-ios
+          path: ios/workbench.ipa
