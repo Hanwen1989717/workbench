@@ -7,27 +7,24 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install XcodeGen
-        run: brew install xcodegen
-
-      - name: Generate and build
+      - name: Build
         run: |
           cd ios
-          xcodegen generate
           xcodebuild -project WorkbenchApp.xcodeproj -scheme WorkbenchApp -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO
 
-      - name: Package IPA
+      - name: Package
         run: |
           cd ios/build/Build/Products/Release-iphoneos
           mkdir Payload
           cp -r WorkbenchApp.app Payload/
           zip -r ../../../workbench.ipa Payload
 
-      - name: Upload IPA
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: workbench-ios
