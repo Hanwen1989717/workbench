@@ -7,19 +7,18 @@ on:
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup build tools
-        run: |
-          brew install xcodegen
+      - name: Install XcodeGen
+        run: brew install xcodegen
 
-      - name: Build project
+      - name: Generate and build
         run: |
           cd ios
           xcodegen generate
-          xcodebuild -scheme WorkbenchApp -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+          xcodebuild -project WorkbenchApp.xcodeproj -scheme WorkbenchApp -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO
 
       - name: Package IPA
         run: |
@@ -27,7 +26,6 @@ jobs:
           mkdir Payload
           cp -r WorkbenchApp.app Payload/
           zip -r ../../../workbench.ipa Payload
-          cd ../../..
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4

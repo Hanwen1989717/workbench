@@ -1,4 +1,4 @@
-name: iOS Workbench App
+name: iOS Workbench
 
 options:
   bundleIdPrefix: com.workbench
